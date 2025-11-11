@@ -407,3 +407,10 @@ def reporte_productos(request):
     }
 
     return render(request, 'tienda/reporte_productos.html', context)
+
+
+# ============ VISTA PARA VENTAS RÁPIDAS ============
+@login_required
+def ventas_rapidas(request):
+    """Vista que muestra la página de ventas rápidas con JavaScript puro"""
+    return render(request, 'tienda/ventas_rapidas.html')
