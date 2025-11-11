@@ -1,0 +1,91 @@
+{% extends 'tienda/base.html' %}
+
+{% block title %}Reporte de Ventas{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">📊 Reporte de Ventas</h1>
+
+    <!-- Estadísticas generales -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total de Ventas</h5>
+                    <h2>{{ total_ventas }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Ingresos Totales</h5>
+                    <h2>${{ total_ingresos|floatformat:2 }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de ventas -->
+    <div class="card">
+        <div class="card-header">
+            <h5>Lista de Ventas</h5>
+        </div>
+        <div class="card-body">
+            {% if ventas_con_detalles %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Fecha</th>
+                                <th>Cliente</th>
+                                <th>Vendedor</th>
+                                <th>Productos Vendidos</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in ventas_con_detalles %}
+                                <tr>
+                                    <td>{{ item.venta.id }}</td>
+                                    <td>{{ item.venta.fecha_venta|date:"d/m/Y H:i" }}</td>
+                                    <td>
+                                        {% if item.venta.cliente %}
+                                            {{ item.venta.cliente.nombre_completo }}
+                                        {% else %}
+                                            Cliente no registrado
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if item.venta.vendido_por %}
+                                            {{ item.venta.vendido_por.username }}
+                                        {% else %}
+                                            No especificado
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <ul class="list-unstyled mb-0">
+                                            {% for detalle in item.detalles %}
+                                                <li>{{ detalle.producto.nombre }} x{{ detalle.cantidad }} @ ${{ detalle.precio_unitario|floatformat:2 }} = ${{ detalle.subtotal|floatformat:2 }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </td>
+                                    <td>${{ item.venta.total|floatformat:2 }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted">No hay ventas registradas.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Botón de regresar -->
+    <div class="mt-4">
+        <a href="{% url 'home' %}" class="btn btn-secondary">← Regresar al Dashboard</a>
+    </div>
+</div>
+{% endblock %}
