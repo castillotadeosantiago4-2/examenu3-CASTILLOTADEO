@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    'django.contrib.humanize',  # 👈 AGREGAR ESTO para formato de millares
     'tienda',                         # 👈 NUESTRA APLICACIÓN
     'crispy_forms',
     'crispy_bootstrap5',
@@ -119,7 +120,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "es-mx"
 
-TIME_ZONE = "America/Hermosillo"
+TIME_ZONE = 'UTC'  # Zona horaria UTC (evita problemas de conversión)
 
 USE_I18N = True
 

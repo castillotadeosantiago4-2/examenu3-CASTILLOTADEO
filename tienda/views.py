@@ -18,6 +18,10 @@ from .models import Producto, Categoria, PerfilUsuario, Proveedor, Cliente, Vent
 # Importa TODOS los formularios que usas en tus vistas
 from .forms import ProductoForm, CategoriaForm, ProveedorForm, ClienteForm, VentaForm, VentaDetalleForm
 
+# Importaciones adicionales para ventas
+from django.utils import timezone
+from django.db.models import Sum
+
 # NOTA: Se eliminó la importación de LoginView y LogoutView porque 
 # creaste tus propias funciones con esos nombres (login_view, logout_view).
 
@@ -120,10 +124,16 @@ def home(request):
     # (Ahora Proveedor y Cliente están importados)
     total_proveedores = Proveedor.objects.count()  # Cuenta todos los proveedores
     total_clientes = Cliente.objects.count()  # Cuenta todos los clientes
-    
+
     # Obtenemos los últimos 5 productos creados
     productos_recientes = Producto.objects.all()[:5]  # Slice de los primeros 5 productos
-    
+
+    # Estadísticas de ventas del día
+    hoy = timezone.now().date()  # Fecha actual
+    ventas_hoy = Venta.objects.filter(fecha_venta__date=hoy)
+    total_ventas_hoy = ventas_hoy.aggregate(total=Sum('total'))['total'] or 0
+    cantidad_ventas_hoy = ventas_hoy.count()
+
     # Creamos un diccionario con los datos que enviaremos al template
     context = {
         'total_productos': total_productos,
@@ -131,8 +141,11 @@ def home(request):
         'total_proveedores': total_proveedores,
         'total_clientes': total_clientes,
         'productos_recientes': productos_recientes,
+        'total_ventas_hoy': total_ventas_hoy,
+        'cantidad_ventas_hoy': cantidad_ventas_hoy,
+        'fecha_hoy': hoy,
     }
-    
+
     return render(request, 'tienda/dashboard.html', context)  # Renderizamos el template con el contexto
 
 
@@ -366,7 +379,7 @@ def cliente_eliminar(request, pk):
 # ============ VISTAS DE REPORTES ============
 @login_required
 @rol_requerido('gerente', 'administrador')  # Solo Gerente y Administrador pueden ver reportes
-def reporte_ventas(request):
+def reporte_ventas_old(request):
     """Vista que muestra el reporte de ventas con detalles de productos vendidos"""
     tipo_filtro = request.GET.get('tipo', '')  # Obtener el filtro de tipo desde GET
 
@@ -418,11 +431,66 @@ def reporte_productos(request):
     return render(request, 'tienda/reporte_productos.html', context)
 
 
-# ============ VISTA PARA VENTAS RÁPIDAS ============
+# ============ VISTAS PARA VENTAS ============
+@login_required  # Requiere estar autenticado
+def venta_crear(request):
+    """Vista para registrar una nueva venta"""
+    if request.method == 'POST':  # Si se envió el formulario
+        form = VentaForm(request.POST)  # Crear formulario con datos POST
+        if form.is_valid():  # Validar formulario
+            # Crear la venta
+            venta = Venta.objects.create(
+                cliente=form.cleaned_data['cliente'],
+                vendido_por=request.user
+            )
+
+            # Crear el detalle de venta
+            producto = form.cleaned_data['producto']
+            cantidad = form.cleaned_data['cantidad']
+            precio_unitario = producto.precio_venta  # Tomar precio actual del producto
+
+            VentaDetalle.objects.create(
+                venta=venta,
+                producto=producto,
+                cantidad=cantidad,
+                precio_unitario=precio_unitario
+            )
+
+            # Calcular el total de la venta
+            venta.calcular_total()
+
+            messages.success(request, f'Venta registrada exitosamente - Total: ${venta.total}')
+            return redirect('reporte_ventas')  # Redirigir al reporte
+    else:
+        form = VentaForm()  # Formulario vacío
+
+    return render(request, 'tienda/venta_form.html', {'form': form})
+
+
 @login_required
-def ventas_rapidas(request):
-    """Vista para gestionar ventas rápidas"""
-    return render(request, 'tienda/ventas_rapidas.html')
+def reporte_ventas(request):
+    """Vista del reporte de ventas del día"""
+    # Obtener fecha del día
+    hoy = timezone.now().date()  # Fecha actual
+    
+    # Filtrar ventas del día de hoy usando fecha_venta__date
+    ventas_hoy = Venta.objects.filter(fecha_venta__date=hoy).select_related('cliente', 'vendido_por').prefetch_related('detalles__producto')
+    
+    # Calcular total de ventas del día
+    total_ventas_dia = ventas_hoy.aggregate(total=Sum('total'))['total'] or 0  # Suma de totales
+    
+    # Contar cantidad de ventas
+    cantidad_ventas = ventas_hoy.count()  # Número de ventas
+    
+    # Calcular promedio por venta
+    promedio_venta = total_ventas_dia / cantidad_ventas if cantidad_ventas > 0 else 0
 
-
-
+    context = {
+        'ventas_hoy': ventas_hoy,
+        'total_ventas_dia': total_ventas_dia,
+        'cantidad_ventas': cantidad_ventas,
+        'promedio_venta': promedio_venta,
+        'fecha': hoy,
+    }
+    
+    return render(request, 'tienda/reporte_ventas.html', context)

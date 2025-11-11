@@ -43,9 +43,9 @@ urlpatterns = [ # Lista de patrones de URL.
     path('clientes/eliminar/<int:pk>/', views.cliente_eliminar, name='cliente_eliminar'),  # Eliminar cliente
 
     # ============ RUTAS PARA REPORTES ============
-    path('reportes/ventas/', views.reporte_ventas, name='reporte_ventas'),  # Reporte de ventas
     path('reportes/productos/', views.reporte_productos, name='reporte_productos'),  # Reporte de productos
 
     # ============ RUTAS PARA VENTAS ============
-    path('ventas/', views.ventas_rapidas, name='ventas_rapidas'),  # Ventas rápidas
+    path('ventas/crear/', views.venta_crear, name='venta_crear'),  # Registrar venta
+    path('ventas/reporte/', views.reporte_ventas, name='reporte_ventas'),  # Reporte de ventas del día
 ]

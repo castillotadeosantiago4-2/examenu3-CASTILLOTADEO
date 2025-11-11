@@ -165,6 +165,19 @@ class ClienteForm(forms.ModelForm):
 
 # Formulario de Venta (Simplificado)
 class VentaForm(forms.ModelForm):
+    # Campos adicionales para el formulario
+    producto = forms.ModelChoiceField(
+        queryset=Producto.objects.filter(activo=True),
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        label='Producto'
+    )
+    cantidad = forms.IntegerField(
+        min_value=1,
+        max_value=1000,
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'min': '1', 'max': '1000'}),
+        label='Cantidad'
+    )
+
     class Meta:
         model = Venta  # Esto ahora funciona gracias a la importación corregida
         fields = ['cliente'] # Define los campos esenciales para registrar una venta.
