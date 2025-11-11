@@ -368,7 +368,14 @@ def cliente_eliminar(request, pk):
 @rol_requerido('gerente', 'administrador')  # Solo Gerente y Administrador pueden ver reportes
 def reporte_ventas(request):
     """Vista que muestra el reporte de ventas con detalles de productos vendidos"""
-    ventas = Venta.objects.all().order_by('-fecha_venta')  # Todas las ventas, ordenadas por fecha descendente
+    tipo_filtro = request.GET.get('tipo', '')  # Obtener el filtro de tipo desde GET
+
+    # Filtrar ventas por tipo si se especifica
+    if tipo_filtro:
+        ventas = Venta.objects.filter(tipo=tipo_filtro).order_by('-fecha_venta')
+    else:
+        ventas = Venta.objects.all().order_by('-fecha_venta')  # Todas las ventas, ordenadas por fecha descendente
+
     total_ventas = ventas.count()  # Número total de ventas
     total_ingresos = sum(venta.total for venta in ventas)  # Suma total de ingresos
 
@@ -385,6 +392,8 @@ def reporte_ventas(request):
         'ventas_con_detalles': ventas_con_detalles,
         'total_ventas': total_ventas,
         'total_ingresos': total_ingresos,
+        'tipo_actual': tipo_filtro,  # Pasar el tipo actual al template
+        'tipos_venta': Venta.TIPOS_VENTA,  # Pasar las opciones de tipo al template
     }
 
     return render(request, 'tienda/reporte_ventas.html', context)
@@ -412,5 +421,8 @@ def reporte_productos(request):
 # ============ VISTA PARA VENTAS RÁPIDAS ============
 @login_required
 def ventas_rapidas(request):
-    """Vista que muestra la página de ventas rápidas con JavaScript puro"""
+    """Vista para gestionar ventas rápidas"""
     return render(request, 'tienda/ventas_rapidas.html')
+
+
+

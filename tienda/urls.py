@@ -46,6 +46,6 @@ urlpatterns = [ # Lista de patrones de URL.
     path('reportes/ventas/', views.reporte_ventas, name='reporte_ventas'),  # Reporte de ventas
     path('reportes/productos/', views.reporte_productos, name='reporte_productos'),  # Reporte de productos
 
-    # ============ RUTA PARA VENTAS RÁPIDAS ============
-    path('ventas/rapidas/', views.ventas_rapidas, name='ventas_rapidas'),  # Ventas rápidas con JavaScript
+    # ============ RUTAS PARA VENTAS ============
+    path('ventas/', views.ventas_rapidas, name='ventas_rapidas'),  # Ventas rápidas
 ]

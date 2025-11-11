@@ -118,10 +118,16 @@ class Cliente(models.Model):
 
 # Modelo 5: Venta (Transacción)
 class Venta(models.Model):
+    TIPOS_VENTA = (
+        ('venta', 'Venta'),
+        ('devolucion', 'Devolución'),
+    )
+
     fecha_venta = models.DateTimeField(auto_now_add=True) # Fecha y hora de la venta.
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0) # Total de la venta, calculado automáticamente.
     cliente = models.ForeignKey(Cliente, on_delete=models.SET_NULL, null=True, blank=True) # Cliente asociado (opcional, SET_NULL al eliminar cliente).
     vendido_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True) # Usuario que realizó la venta (opcional, SET_NULL al eliminar usuario).
+    tipo = models.CharField(max_length=20, choices=TIPOS_VENTA, default='venta') # Tipo de transacción: venta o devolución.
 
     def __str__(self):
         return f"Venta #{self.id} - Total: {self.total}" # Representación en string con ID y total.

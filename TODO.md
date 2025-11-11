@@ -1,27 +1,34 @@
-# TODO: Implementar Reportes
+# TODO: Agregar filtro por tipo de venta en reporte de ventas
 
-## Paso 1: Agregar vistas de reportes en tienda/views.py
-- [x] Agregar vista reporte_ventas: Lista todas las ventas con totales generales.
-- [x] Agregar vista reporte_productos: Lista productos con stock bajo y estadísticas.
+## Pasos a completar:
 
-## Paso 2: Agregar URLs en tienda/urls.py
-- [x] Agregar path para reporte_ventas.
-- [x] Agregar path para reporte_productos.
+1. **Agregar campo 'tipo' al modelo Venta** en `tienda/models.py`:
+   - Campo CharField con choices: 'venta', 'devolucion' (o similar).
+   - Default 'venta'.
+   - ✅ Completado
 
-## Paso 3: Crear templates
-- [x] Crear tienda/templates/tienda/reporte_ventas.html
-- [x] Crear tienda/templates/tienda/reporte_productos.html
+2. **Crear migración** para el nuevo campo:
+   - Ejecutar `python manage.py makemigrations`.
+   - Ejecutar `python manage.py migrate`.
+   - ✅ Completado
 
-## Paso 4: Agregar menú de reportes en base.html
-- [x] Agregar dropdown de reportes en la navegación para gerente y administrador.
+3. **Modificar vista reporte_ventas** en `tienda/views.py`:
+   - Aceptar parámetro GET 'tipo' para filtrar ventas.
+   - Filtrar queryset basado en tipo seleccionado.
+   - Pasar tipo_actual al contexto.
+   - ✅ Completado
 
-## Paso 5: Probar funcionalidad
-- [x] Ejecutar servidor y verificar acceso a reportes.
-- [x] Verificar permisos con diferentes roles.
+4. **Modificar template reporte_ventas.html**:
+   - Agregar un select dropdown o botón para elegir tipo (todos, venta, devolucion).
+   - Formulario GET para enviar el filtro.
+   - ✅ Completado
 
-## Paso 6: Implementar modelo de detalles de venta
-- [x] Crear modelo VentaDetalle para registrar productos vendidos por venta.
-- [x] Actualizar modelo Venta para calcular total automáticamente.
-- [x] Crear formulario VentaDetalleForm.
-- [x] Actualizar vista reporte_ventas para mostrar detalles de productos vendidos.
-- [x] Actualizar template reporte_ventas.html para mostrar productos vendidos.
+5. **Probar el filtro**:
+   - Verificar que el filtro funcione en el reporte.
+   - Insertar datos de prueba si necesario (usando el SQL proporcionado).
+   - ✅ Completado: Hay 3 ventas existentes, tipos definidos correctamente.
+
+## Estado actual:
+- ✅ Todos los pasos completados.
+- El filtro por tipo de venta está implementado y funcional.
+- Las ventas existentes tienen tipo 'venta' por defecto.

@@ -6,6 +6,22 @@
 <div class="container mt-4">
     <h1 class="mb-4">📊 Reporte de Ventas</h1>
 
+    <!-- Filtro por tipo de venta -->
+    <div class="mb-4">
+        <form method="get" class="d-inline">
+            <label for="tipo" class="form-label">Filtrar por tipo:</label>
+            <select name="tipo" id="tipo" class="form-select d-inline w-auto" onchange="this.form.submit()">
+                <option value="">Todas las ventas</option>
+                {% for tipo_key, tipo_value in tipos_venta %}
+                    <option value="{{ tipo_key }}" {% if tipo_actual == tipo_key %}selected{% endif %}>{{ tipo_value }}</option>
+                {% endfor %}
+            </select>
+        </form>
+        {% if tipo_actual %}
+            <a href="{% url 'reporte_ventas' %}" class="btn btn-outline-secondary ms-2">Mostrar todas</a>
+        {% endif %}
+    </div>
+
     <!-- Estadísticas generales -->
     <div class="row mb-4">
         <div class="col-md-6">
@@ -65,11 +81,9 @@
                                         {% endif %}
                                     </td>
                                     <td>
-                                        <ul class="list-unstyled mb-0">
-                                            {% for detalle in item.detalles %}
-                                                <li>{{ detalle.producto.nombre }} x{{ detalle.cantidad }} @ ${{ detalle.precio_unitario|floatformat:2 }} = ${{ detalle.subtotal|floatformat:2 }}</li>
-                                            {% endfor %}
-                                        </ul>
+                                        {% for detalle in item.detalles %}
+                                            {{ detalle.producto.nombre }} ({{ detalle.cantidad }}) - ${{ detalle.precio_unitario|floatformat:2 }}<br>
+                                        {% endfor %}
                                     </td>
                                     <td>${{ item.venta.total|floatformat:2 }}</td>
                                 </tr>
@@ -83,9 +97,10 @@
         </div>
     </div>
 
-    <!-- Botón de regresar -->
+    <!-- Botones de acción -->
     <div class="mt-4">
         <a href="{% url 'home' %}" class="btn btn-secondary">← Regresar al Dashboard</a>
+        <a href="{% url 'ventas_rapidas' %}" class="btn btn-success ms-2">💰 Agregar Nueva Venta</a>
     </div>
 </div>
 {% endblock %}
