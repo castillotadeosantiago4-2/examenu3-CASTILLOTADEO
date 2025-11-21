@@ -1,31 +1,116 @@
+<!-- tienda/templates/tienda/producto_form.html -->
 {% extends 'tienda/base.html' %}
-{% load crispy_forms_tags %}
 
+<!-- 
+NOTA: Este template NO usa 'crispy_forms'.
+Renderiza los campos manualmente para usar las clases
+de Bootstrap 5 definidas en los widgets de 'forms.py'.
+-->
+
+<!-- CORRECCIÓN: Se usa la variable 'accion' que viene de views.py -->
 {% block title %}{{ accion }} Producto{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-md-8 col-lg-6">
-        <div class="card shadow">
-            <div class="card-header bg-secondary text-white">
-                <h3 class="mb-0">{{ accion }} Producto</h3>
-            </div>
-            <div class="card-body">
+    <div class="col-md-8 col-lg-7">
+        
+        <!-- El tag <form> debe envolver la tarjeta para incluir los botones del footer -->
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white">
+                    <!-- CORRECCIÓN: Se usa la variable 'accion' -->
+                    <h3 class="mb-0">
+                        <i class="fas fa-box me-2"></i> {{ accion }} Producto
+                    </h3>
+                </div>
                 
-                <form method="post">
-                    {% csrf_token %}
+                <div class="card-body p-4">
+                    <!-- 
+                    CORRECCIÓN: Renderizado manual de cada campo.
+                    Las clases (ej. 'form-control') se toman automáticamente
+                    de los widgets definidos en 'tienda/forms.py'.
+                    -->
                     
-                    {{ form|crispy }}
-                    
-                    <div class="text-end mt-3">
-                        <a href="{% url 'producto_lista' %}" class="btn btn-outline-secondary me-2">Cancelar</a>
-                        <button type="submit" class="btn btn-success">
-                            <i class="fas fa-save"></i> Guardar Producto
-                        </button>
-                    </div>
+                    <!-- Errores generales del formulario (ej. validación de stock) -->
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                <p class="mb-0">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
 
-                </form> </div>
+                    <div class="mb-3">
+                        <label for="{{ form.nombre.id_for_label }}" class="form-label fw-bold">{{ form.nombre.label }}</label>
+                        {{ form.nombre }}
+                        {% if form.nombre.errors %}
+                            <div class="invalid-feedback d-block">{{ form.nombre.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.descripcion.id_for_label }}" class="form-label fw-bold">{{ form.descripcion.label }}</label>
+                        {{ form.descripcion }}
+                        {% if form.descripcion.errors %}
+                            <div class="invalid-feedback d-block">{{ form.descripcion.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.precio_venta.id_for_label }}" class="form-label fw-bold">{{ form.precio_venta.label }}</label>
+                            {{ form.precio_venta }}
+                            {% if form.precio_venta.errors %}
+                                <div class="invalid-feedback d-block">{{ form.precio_venta.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.stock.id_for_label }}" class="form-label fw-bold">{{ form.stock.label }}</label>
+                            {{ form.stock }}
+                            {% if form.stock.errors %}
+                                <div class="invalid-feedback d-block">{{ form.stock.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.categoria.id_for_label }}" class="form-label fw-bold">{{ form.categoria.label }}</label>
+                        {{ form.categoria }}
+                        {% if form.categoria.errors %}
+                            <div class="invalid-feedback d-block">{{ form.categoria.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Checkbox 'activo' (usamos un 'switch' de Bootstrap) -->
+                    <div class="form-check form-switch mb-3 p-3 bg-light rounded border">
+                        <!-- El widget en forms.py ya tiene la clase 'form-check-input' -->
+                        {{ form.activo }}
+                        <label class="form-check-label fw-bold" for="{{ form.activo.id_for_label }}">
+                            {{ form.activo.label }}
+                        </label>
+                        {% if form.activo.errors %}
+                            <div class="invalid-feedback d-block">{{ form.activo.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                </div>
+                
+                <div class="card-footer text-end bg-light">
+                    <!-- CORRECCIÓN: Se añade 'tienda:' a la URL de cancelar -->
+                    <a href="{% url 'tienda:producto_lista' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-1"></i> Cancelar
+                    </a>
+                    
+                    <!-- CORRECCIÓN: Se añade el botón de 'Guardar' -->
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save me-1"></i> Guardar Producto
+                    </button>
+                </div>
             </div>
+            
+        </form>
     </div>
 </div>
 {% endblock %}

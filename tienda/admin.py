@@ -1,8 +1,9 @@
 # tienda/admin.py
+
 # Importamos el módulo admin de Django para registrar modelos
 from django.contrib import admin
 # Importamos todos nuestros modelos
-from .models import Categoria, Producto, Proveedor, Cliente, PerfilUsuario
+from .models import Categoria, Producto, Proveedor, Cliente, PerfilUsuario, Venta
 
 
 # ============ CONFIGURACIÓN DEL ADMIN PARA PERFILES DE USUARIO ============
@@ -31,7 +32,7 @@ class CategoriaAdmin(admin.ModelAdmin):
 class ProductoAdmin(admin.ModelAdmin):
     """Configuración personalizada del admin para Productos"""
     
-    # CORRECCIÓN: Se cambió 'precio' por 'precio_venta'
+    # CORRECCIÓN: Se cambió 'precio' por 'precio_venta' para que coincida con el modelo
     list_display = ('id', 'nombre', 'categoria', 'precio_venta', 'stock', 'activo', 'fecha_creacion')
     
     search_fields = ('nombre', 'descripcion')  # Búsqueda por nombre o descripción
@@ -48,11 +49,15 @@ class ProductoAdmin(admin.ModelAdmin):
 class ProveedorAdmin(admin.ModelAdmin):
     """Configuración personalizada del admin para Proveedores"""
     
-    # CORRECCIÓN: Se usan los campos que SÍ existen en el modelo Proveedor
-    list_display = ('id', 'nombre', 'contacto', 'telefono')
-    search_fields = ('nombre', 'contacto')
-    ordering = ('nombre',)
-    # (Se eliminan los campos 'empresa', 'email', 'fecha_registro' porque no existen)
+    # CORRECCIÓN: Se eliminó 'fecha_registro' porque no existe en este modelo
+    list_display = ('id', 'empresa', 'nombre', 'telefono', 'email')
+    
+    search_fields = ('nombre', 'empresa', 'email')  # Búsqueda por nombre, empresa o email
+    
+    # CORRECCIÓN: Se eliminó 'fecha_registro'
+    list_filter = ('empresa',) 
+    
+    ordering = ('empresa',)
 
 
 # ============ CONFIGURACIÓN DEL ADMIN PARA CLIENTES ============
@@ -64,5 +69,20 @@ class ClienteAdmin(admin.ModelAdmin):
     list_filter = ('fecha_registro',)
     ordering = ('apellido', 'nombre')  # Orden por apellido y luego nombre
 
-# Nota: Con estas configuraciones, los modelos aparecerán en el panel de administración de Django
-# accesible en http://localhost:8000/admin/
+
+# ============ ¡NUEVO! CONFIGURACIÓN DEL ADMIN PARA VENTAS ============
+@admin.register(Venta)
+class VentaAdmin(admin.ModelAdmin):
+    """Configuración personalizada del admin para Ventas (Solo Lectura)"""
+    list_display = ('id', 'fecha_venta', 'cliente', 'vendedor', 'producto', 'cantidad', 'precio_unitario', 'total')
+    list_filter = ('fecha_venta', 'vendedor', 'cliente', 'producto')
+    search_fields = ('cliente__nombre', 'producto__nombre', 'vendedor__username')
+    ordering = ('-fecha_venta',)
+    
+    # Hacemos que el admin de ventas sea de solo lectura para evitar
+    # que se modifique una venta sin ajustar el stock (lo cual debe hacerse desde las vistas)
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_add_permission(self, request):
+        return False

@@ -5,38 +5,66 @@
 
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card shadow">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm border-0">
             <div class="card-header bg-success text-white">
-                <h3 class="mb-0"><i class="fas fa-cash-register"></i> Registrar Nueva Venta</h3>
+                <h3 class="mb-0"><i class="fas fa-cash-register me-2"></i> Registrar Nueva Venta</h3>
             </div>
-            <div class="card-body">
+            <div class="card-body p-4">
                 <form method="post">
                     {% csrf_token %}  <!-- Token de seguridad CSRF -->
+                    
+                    <!-- 
+                    CORRECCIÓN: Se añade el bloque para mostrar errores
+                    (ej. "No hay suficiente stock...")
+                    -->
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                <p class="mb-0">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
 
+                    <!-- 
+                    Los campos (cliente, producto, cantidad) ya reciben la
+                    clase 'form-control' desde los widgets en 'tienda/forms.py'
+                    -->
+                    
                     <!-- Campo Cliente -->
                     <div class="mb-3">
-                        <label class="form-label">{{ form.cliente.label }}</label>
-                        {{ form.cliente }}  <!-- Combobox de clientes -->
+                        <label class="form-label fw-bold">{{ form.cliente.label }}</label>
+                        {{ form.cliente }}
+                        {% if form.cliente.errors %}
+                            <div class="invalid-feedback d-block">{{ form.cliente.errors.0 }}</div>
+                        {% endif %}
                     </div>
-
+                    
                     <!-- Campo Producto -->
                     <div class="mb-3">
-                        <label class="form-label">{{ form.producto.label }}</label>
-                        {{ form.producto }}  <!-- Combobox de productos -->
+                        <label class="form-label fw-bold">{{ form.producto.label }}</label>
+                        {{ form.producto }}
+                        {% if form.producto.errors %}
+                            <div class="invalid-feedback d-block">{{ form.producto.errors.0 }}</div>
+                        {% endif %}
                     </div>
-
+                    
                     <!-- Campo Cantidad -->
                     <div class="mb-3">
-                        <label class="form-label">{{ form.cantidad.label }}</label>
-                        {{ form.cantidad }}  <!-- Input numérico -->
+                        <label class="form-label fw-bold">{{ form.cantidad.label }}</label>
+                        {{ form.cantidad }}
+                        {% if form.cantidad.errors %}
+                            <div class="invalid-feedback d-block">{{ form.cantidad.errors.0 }}</div>
+                        {% endif %}
                     </div>
-
-                    <div class="d-grid gap-2">
+                    
+                    <div class="d-grid gap-2 mt-4">
                         <button type="submit" class="btn btn-success btn-lg">
-                            <i class="fas fa-check"></i> Registrar Venta
+                            <i class="fas fa-check me-1"></i> Registrar Venta
                         </button>
-                        <a href="{% url 'reporte_ventas' %}" class="btn btn-outline-secondary">Cancelar</a>
+                        
+                        <!-- CORRECCIÓN: Se añade 'tienda:' a la URL -->
+                        <a href="{% url 'tienda:reporte_ventas' %}" class="btn btn-outline-secondary">Cancelar</a>
                     </div>
                 </form>
             </div>

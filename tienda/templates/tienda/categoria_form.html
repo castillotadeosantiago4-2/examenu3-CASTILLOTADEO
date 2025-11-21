@@ -1,28 +1,53 @@
+<!-- tienda/templates/tienda/categoria_form.html -->
 {% extends 'tienda/base.html' %}
-{% load crispy_forms_tags %}
 
 {% block title %}{{ accion }} Categoría{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-md-8 col-lg-6">
-        <div class="card shadow">
-            <div class="card-header bg-secondary text-white">
-                <h3 class="mb-0">{{ accion }} Categoría</h3>
-            </div>
-            <div class="card-body">
-                <form method="post">
-                    {% csrf_token %}
-                    {{ form|crispy }}
-                    <div class="text-end mt-3">
-                        <a href="{% url 'categoria_lista' %}" class="btn btn-outline-secondary me-2">Cancelar</a>
-                        <button type="submit" class="btn btn-success">
-                            <i class="fas fa-save"></i> Guardar Categoría
-                        </button>
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-tags me-2"></i> {{ accion }} Categoría
+                    </h3>
+                </div>
+                
+                <div class="card-body p-4">
+
+                    <div class="mb-3">
+                        <label for="{{ form.nombre.id_for_label }}" class="form-label fw-bold">{{ form.nombre.label }}</label>
+                        {{ form.nombre }} <!-- El widget ya tiene 'form-control' -->
+                        {% if form.nombre.errors %}
+                            <div class="invalid-feedback d-block">{{ form.nombre.errors.0 }}</div>
+                        {% endif %}
                     </div>
-                </form>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.descripcion.id_for_label }}" class="form-label fw-bold">{{ form.descripcion.label }}</label>
+                        {{ form.descripcion }} <!-- El widget ya tiene 'form-control' -->
+                        {% if form.descripcion.errors %}
+                            <div class="invalid-feedback d-block">{{ form.descripcion.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    
+                </div>
+                
+                <div class="card-footer text-end bg-light">
+                    <a href="{% url 'tienda:categoria_lista' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-1"></i> Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save me-1"></i> Guardar Categoría
+                    </button>
+                </div>
             </div>
-        </div>
+            
+        </form>
     </div>
 </div>
 {% endblock %}

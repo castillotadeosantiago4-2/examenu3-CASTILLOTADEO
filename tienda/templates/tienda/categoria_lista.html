@@ -1,46 +1,61 @@
+<!-- tienda/templates/tienda/categoria_lista.html -->
 {% extends 'tienda/base.html' %}
+{% load humanize %}
 
 {% block title %}Lista de Categorías{% endblock %}
 
 {% block content %}
-<h1 class="mb-4">Gestión de Categorías ({{ categorias|length }})</h1>
-<div class="d-flex justify-content-end mb-3">
-    <a href="{% url 'categoria_crear' %}" class="btn btn-primary">
-        <i class="fas fa-plus me-1"></i> Nueva Categoría
-    </a>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="mb-0">Gestión de Categorías ({{ categorias|length }})</h1>
+    
+    <!-- La vista 'categoria_crear' ya está protegida por rol -->
+    <div class="d-flex justify-content-end">
+        <a href="{% url 'tienda:categoria_crear' %}" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i> Nueva Categoría
+        </a>
+    </div>
 </div>
 
-<div class="table-responsive shadow-sm rounded">
-    <table class="table table-hover table-striped">
+
+<div class="card shadow-sm border-0">
+<div class="table-responsive rounded">
+    <table class="table table-hover table-striped align-middle mb-0">
         <thead class="bg-dark text-white">
             <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Descripción</th>
-                <th>Acciones</th>
+                <th scope="col">ID</th>
+                <th scope="col">Nombre</th>
+                <th scope="col">Descripción</th>
+                <th scope="col">Acciones</th>
             </tr>
         </thead>
         <tbody>
-            {% for cat in categorias %}
+            {% for categoria in categorias %}
             <tr>
-                <td>{{ cat.id }}</td>
-                <td>{{ cat.nombre }}</td>
-                <td>{{ cat.descripcion|default:"N/A" }}</td>
+                <td>{{ categoria.id }}</td>
+                <td><strong>{{ categoria.nombre }}</strong></td>
+                <td>{{ categoria.descripcion|truncatewords:20|default:"N/A" }}</td>
                 <td>
-                    <a href="{% url 'categoria_editar' cat.pk %}" class="btn btn-sm btn-info me-2" title="Editar">
+                    <!-- Botón EDITAR (Gerentes y Admins) -->
+                    <a href="{% url 'tienda:categoria_editar' categoria.pk %}" class="btn btn-sm btn-info me-2" title="Editar">
                         <i class="fas fa-edit"></i>
                     </a>
-                    <a href="{% url 'categoria_eliminar' cat.pk %}" class="btn btn-sm btn-danger" title="Eliminar">
-                        <i class="fas fa-trash-alt"></i>
-                    </a>
+
+                    <!-- Botón ELIMINAR (Solo Admins) -->
+                    {% if user.is_superuser or user.perfil and user.perfil.rol == 'administrador' %}
+                        <a href="{% url 'tienda:categoria_eliminar' categoria.pk %}" class="btn btn-sm btn-danger" title="Eliminar">
+                            <i class="fas fa-trash-alt"></i>
+                        </a>
+                    {% endif %}
                 </td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="4" class="text-center">No hay categorías registradas.</td>
+                <td colspan="4" class="text-center py-4">No hay categorías registradas.</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
+</div>
 </div>
 {% endblock %}

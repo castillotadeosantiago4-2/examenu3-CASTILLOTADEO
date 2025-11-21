@@ -1,3 +1,4 @@
+<!-- tienda/templates/tienda/cliente_eliminar.html -->
 {% extends 'tienda/base.html' %}
 
 {% block title %}Eliminar Cliente{% endblock %}
@@ -9,16 +10,23 @@
             <div class="card-header bg-danger text-white">
                 <h3 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i> Confirmar Eliminación</h3>
             </div>
-            <div class="card-body">
-                <p>¿Está seguro que desea eliminar al cliente:</p>
+            <div class="card-body p-4">
+                
+                <p>¿Está seguro que desea <strong>eliminar permanentemente</strong> al cliente:</p>
                 <h4 class="text-danger">{{ cliente.nombre_completo }} (ID: {{ cliente.id }})</h4>
-                <p class="text-muted">Esta acción eliminará permanentemente el registro.</p>
+                <p class="text-muted fw-bold">
+                    <i class="fas fa-exclamation-circle"></i> ¡Esta acción es irreversible! Se borrarán también todas las ventas asociadas a este cliente.
+                </p>
                 
                 <form method="post">
                     {% csrf_token %}
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
-                        <a href="{% url 'cliente_lista' %}" class="btn btn-secondary btn-lg">Cancelar</a>
-                        <button type="submit" class="btn btn-danger btn-lg"><i class="fas fa-trash-alt me-1"></i> Sí, Eliminar</button>
+                        <a href="{% url 'tienda:cliente_lista' %}" class="btn btn-secondary btn-lg">
+                            <i class="fas fa-times me-1"></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-danger btn-lg">
+                            <i class="fas fa-trash-alt me-1"></i> Sí, Eliminar Permanentemente
+                        </button>
                     </div>
                 </form>
             </div>

@@ -1,0 +1,44 @@
+<!-- tienda/templates/tienda/venta_eliminar.html -->
+{% extends 'tienda/base.html' %}
+{% load humanize %}
+
+{% block title %}Eliminar Venta{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6">
+        <div class="card border-danger shadow-lg">
+            <div class="card-header bg-danger text-white">
+                <h3 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i> Confirmar Eliminación (Reversión)</h3>
+            </div>
+            <div class="card-body p-4">
+                
+                <p>¿Está seguro que desea <strong>eliminar permanentemente</strong> la venta <strong>#{{ venta.id }}</strong>?</p>
+                
+                <ul class="list-group mb-3">
+                    <li class="list-group-item"><strong>Producto:</strong> {{ venta.producto.nombre }}</li>
+                    <li class="list-group-item"><strong>Cantidad:</strong> {{ venta.cantidad }}</li>
+                    <li class="list-group-item"><strong>Total:</strong> ${{ venta.total|floatformat:2|intcomma }}</li>
+                </ul>
+
+                <p class="text-muted fw-bold">
+                    <i class="fas fa-exclamation-circle"></i> ¡Esta acción es irreversible!
+                    El stock del producto ({{ venta.cantidad }} unidades) será <strong>devuelto</strong> al inventario.
+                </p>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                        <a href="{% url 'tienda:venta_lista' %}" class="btn btn-secondary btn-lg">
+                            <i class="fas fa-times me-1"></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-danger btn-lg">
+                            <i class="fas fa-trash-alt me-1"></i> Sí, Eliminar y Revertir Stock
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

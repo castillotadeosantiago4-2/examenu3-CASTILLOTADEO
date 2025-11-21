@@ -1,4 +1,9 @@
+<!-- tienda/templates/tienda/dashboard.html -->
+<!-- NOTA: Este es el archivo que tu views.py llama 'dashboard.html' -->
+
 {% extends 'tienda/base.html' %}
+{% load humanize %}
+
 {% block title %}Dashboard - {{ user.username }}{% endblock %}
 
 {% block content %}
@@ -6,62 +11,140 @@
     <h1 class="mb-4 text-center">Panel de Control (Dashboard)</h1>
     
     <div class="row g-4">
+        
+        <!-- Tarjeta de Productos -->
         <div class="col-md-6 col-lg-4">
-            <div class="card text-white bg-success shadow-lg">
+            <div class="card text-white bg-success shadow-sm">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h5 class="card-title">Total Productos Activos</h5>
-                            <p class="card-text fs-2">{{ total_productos }}</p>
+                            <h5 class="card-title">Total Productos</h5>
+                            <p class="card-text fs-2 fw-bold">{{ total_productos }}</p>
                         </div>
-                        <i class="fas fa-box-open fa-3x"></i>
+                        <i class="fas fa-box-open fa-3x opacity-75"></i>
                     </div>
-                    <a href="{% url 'producto_lista' %}" class="btn btn-outline-light mt-3 w-100">Ver Productos</a>
+                    <a href="{% url 'tienda:producto_lista' %}" class="btn btn-outline-light mt-3 w-100">Ver Productos</a>
                 </div>
             </div>
         </div>
 
+        <!-- Tarjeta de Clientes -->
         <div class="col-md-6 col-lg-4">
-            <div class="card text-white bg-info shadow-lg">
+            <div class="card text-dark bg-warning shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title">Total Clientes</h5>
+                            <p class="card-text fs-2 fw-bold">{{ total_clientes }}</p>
+                        </div>
+                        <i class="fas fa-users fa-3x opacity-75"></i>
+                    </div>
+                    <a href="{% url 'tienda:cliente_lista' %}" class="btn btn-outline-dark mt-3 w-100">Ver Clientes</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tarjeta de Ventas -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card text-white bg-danger shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title">Total Ventas (Hist.)</h5>
+                            <p class="card-text fs-2 fw-bold">{{ total_ventas }}</p>
+                        </div>
+                        <i class="fas fa-history fa-3x opacity-75"></i>
+                    </div>
+                    
+                    <!-- ===== CORRECCIÓN 1 (Línea 57) ===== -->
+                    <!-- Se quitaron los paréntesis del 'if' -->
+                    {% if user.is_superuser or user.perfil and user.perfil.rol != 'vendedor' %}
+                        <a href="{% url 'tienda:venta_lista' %}" class="btn btn-outline-light mt-3 w-100">Ver Historial</a>
+                    {% else %}
+                        <a href="{% url 'tienda:venta_crear' %}" class="btn btn-outline-light mt-3 w-100">Nueva Venta</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Tarjeta de Categorías (Visible solo para Gerente/Admin) -->
+        <!-- ===== CORRECCIÓN 2 (Línea 67) ===== -->
+        <!-- Se quitaron los paréntesis del 'if' -->
+        {% if user.is_superuser or user.perfil and user.perfil.rol != 'vendedor' %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card text-white bg-info shadow-sm">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <h5 class="card-title">Total Categorías</h5>
-                            <p class="card-text fs-2">{{ total_categorias }}</p>
+                            <p class="card-text fs-2 fw-bold">{{ total_categorias }}</p>
                         </div>
-                        <i class="fas fa-tags fa-3x"></i>
+                        <i class="fas fa-tags fa-3x opacity-75"></i>
                     </div>
-                    
-                    <a href="{% url 'categoria_lista' %}" class="btn btn-outline-light mt-3 w-100">Administrar Categorías</a>
-
+                    <a href="{% url 'tienda:categoria_lista' %}" class="btn btn-outline-light mt-3 w-100">Administrar Categorías</a>
                 </div>
             </div>
         </div>
-
+        {% endif %}
+        
+        <!-- Tarjeta de Proveedores (Visible solo para Gerente/Admin) -->
+        <!-- ===== CORRECCIÓN 3 (Línea 80) ===== -->
+        <!-- Se quitaron los paréntesis del 'if' -->
+        {% if user.is_superuser or user.perfil and user.perfil.rol != 'vendedor' %}
         <div class="col-md-6 col-lg-4">
-            <div class="card text-white bg-warning shadow-lg">
+            <div class="card text-white bg-secondary shadow-sm">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h5 class="card-title">Ventas de Hoy</h5>
-                            <p class="card-text fs-2">${{ total_ventas_hoy|floatformat:2 }}</p>
-                            <small class="text-white-50">{{ cantidad_ventas_hoy }} ventas realizadas</small>
+                            <h5 class="card-title">Total Proveedores</h5>
+                            <p class="card-text fs-2 fw-bold">{{ total_proveedores }}</p>
                         </div>
-                        <i class="fas fa-chart-line fa-3x"></i>
+                        <i class="fas fa-truck fa-3x opacity-75"></i>
                     </div>
-                    <a href="{% url 'reporte_ventas' %}" class="btn btn-outline-light mt-3 w-100">Ver Reporte</a>
+                    <a href="{% url 'tienda:proveedor_lista' %}" class="btn btn-outline-light mt-3 w-100">Ver Proveedores</a>
                 </div>
             </div>
         </div>
+        {% endif %}
+
     </div>
 
-    <div class="mt-5 p-4 bg-light border rounded">
+    <!-- Sección de Acciones Rápidas -->
+    <div class="mt-5 p-4 bg-white border rounded shadow-sm">
         <h4>Acciones Rápidas</h4>
-        <a href="{% url 'reporte_ventas' %}" class="btn btn-success me-2"><i class="fas fa-chart-line"></i> Reporte de Ventas</a>
-        <a href="{% url 'producto_crear' %}" class="btn btn-primary me-2"><i class="fas fa-plus"></i> Añadir Producto</a>
+        <hr>
+        <a href="{% url 'tienda:venta_crear' %}" class="btn btn-primary me-2"><i class="fas fa-cash-register me-1"></i> Nueva Venta</a>
+        
+        <!-- ===== CORRECCIÓN 4 (Línea 96) ===== -->
+        <!-- Se quitaron los paréntesis del 'if' -->
+        {% if user.is_superuser or user.perfil and user.perfil.rol != 'vendedor' %}
+            <a href="{% url 'tienda:producto_crear' %}" class="btn btn-success me-2"><i class="fas fa-plus me-1"></i> Añadir Producto</a>
+        {% endif %}
+        <a href="{% url 'tienda:cliente_crear' %}" class="btn btn-warning text-dark me-2"><i class="fas fa-user-plus me-1"></i> Registrar Cliente</a>
+    </div>
 
-        <a href="{% url 'cliente_crear' %}" class="btn btn-secondary me-2"><i class="fas fa-user-plus"></i> Registrar Cliente</a>
-
+    <!-- Productos Recientes -->
+    <div class="mt-5 p-4 bg-white border rounded shadow-sm">
+        <h4><i class="fas fa-clock me-2"></i>Productos Añadidos Recientemente</h4>
+        <hr>
+        {% if productos_recientes %}
+            <ul class="list-group list-group-flush">
+            {% for producto in productos_recientes %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong class="fs-5">{{ producto.nombre }}</strong>
+                        <small class="text-muted d-block">Categoría: {{ producto.categoria.nombre|default:"N/A" }}</small>
+                    </div>
+                    <div>
+                        <span class="badge bg-primary rounded-pill fs-6 me-2">${{ producto.precio_venta|floatformat:2 }}</span>
+                        <span class="badge bg-secondary rounded-pill fs-6">Stock: {{ producto.stock }}</span>
+                    </div>
+                </li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-muted">No hay productos registrados todavía.</p>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

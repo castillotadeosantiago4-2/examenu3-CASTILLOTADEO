@@ -1,37 +1,31 @@
-# tienda/forms.py
 # Importamos forms de Django para crear formularios
 from django import forms
-# CORRECCIÓN: Se añade 'Venta' a la importación
-from .models import Producto, Categoria, Proveedor, Cliente, Venta, VentaDetalle
-
+# Importamos TODOS los modelos necesarios
+from .models import Producto, Categoria, Proveedor, Cliente, Venta 
 
 # ============ FORMULARIO PARA PRODUCTOS ============
 class ProductoForm(forms.ModelForm):
     """Formulario para crear y editar productos"""
     
-    # Meta clase define la configuración del formulario
     class Meta:
-        model = Producto  # El modelo que usará este formulario
+        model = Producto
+        # CORREGIDO: 'precio_venta' coincide con el modelo
+        fields = ['nombre', 'descripcion', 'precio_venta', 'stock', 'categoria', 'proveedor', 'activo']
         
-        # CORRECCIÓN: Se cambió 'precio' por 'precio_venta' para coincidir con el models.py
-        fields = ['nombre', 'descripcion', 'precio_venta', 'stock', 'categoria', 'activo']
-        
-        # Widgets: personalización de cómo se muestran los campos en HTML
         widgets = {
             'nombre': forms.TextInput(attrs={
-                'class': 'form-control',  # Clase de Bootstrap para estilos
-                'placeholder': 'Ingrese el nombre del producto'  # Texto de ayuda en el campo
+                'class': 'form-control',
+                'placeholder': 'Ingrese el nombre del producto'
             }),
             'descripcion': forms.Textarea(attrs={
                 'class': 'form-control',
-                'rows': 3,  # Altura del textarea en filas
+                'rows': 3,
                 'placeholder': 'Ingrese una descripción del producto'
             }),
-            # CORRECCIÓN: El widget debe apuntar a 'precio_venta'
             'precio_venta': forms.NumberInput(attrs={
                 'class': 'form-control',
-                'step': '0.01',  # Permite decimales de 2 dígitos
-                'min': '0',  # Valor mínimo
+                'step': '0.01',
+                'min': '0',
                 'placeholder': '0.00'
             }),
             'stock': forms.NumberInput(attrs={
@@ -39,24 +33,24 @@ class ProductoForm(forms.ModelForm):
                 'min': '0',
                 'placeholder': '0'
             }),
-            # Select para la categoría (combobox con las opciones de categorías)
             'categoria': forms.Select(attrs={
                 'class': 'form-control'
             }),
-            # Checkbox para el campo activo
+            'proveedor': forms.Select(attrs={ # Campo que faltaba en tu form original
+                'class': 'form-control'
+            }),
             'activo': forms.CheckboxInput(attrs={
                 'class': 'form-check-input'
             }),
         }
         
-        # Labels: etiquetas personalizadas para cada campo
         labels = {
             'nombre': 'Nombre del Producto',
             'descripcion': 'Descripción',
-            # CORRECCIÓN: La etiqueta debe ser para 'precio_venta'
             'precio_venta': 'Precio ($)',
             'stock': 'Cantidad en Stock',
             'categoria': 'Categoría',
+            'proveedor': 'Proveedor',
             'activo': '¿Producto Activo?',
         }
 
@@ -67,7 +61,7 @@ class CategoriaForm(forms.ModelForm):
     
     class Meta:
         model = Categoria
-        fields = ['nombre', 'descripcion']  # Solo nombre y descripción
+        fields = ['nombre', 'descripcion']
         
         widgets = {
             'nombre': forms.TextInput(attrs={
@@ -89,36 +83,46 @@ class CategoriaForm(forms.ModelForm):
 
 # ============ FORMULARIO PARA PROVEEDORES ============
 class ProveedorForm(forms.ModelForm):
-    """Formulario para crear y editar proveedores"""
+    """
+    Formulario para crear y editar proveedores.
+    ESTE FORMULARIO CAUSA EL ERROR si 'models.py' no coincide.
+    """
     
     class Meta:
         model = Proveedor
-        # CORRECCIÓN: Se ajustan los campos a los del modelo: nombre, contacto, telefono
-        fields = ['nombre', 'contacto', 'telefono']
+        # Estos campos DEBEN existir en el 'class Proveedor' de 'models.py'
+        fields = ['nombre', 'empresa', 'telefono', 'email', 'direccion']
         
         widgets = {
             'nombre': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Nombre de la empresa proveedora'
+                'placeholder': 'Nombre del contacto'
             }),
-            # CORRECCIÓN: Se añade el campo 'contacto' que faltaba
-            'contacto': forms.TextInput(attrs={
+            'empresa': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Nombre de la persona de contacto'
+                'placeholder': 'Nombre de la empresa'
             }),
             'telefono': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Teléfono de contacto'
             }),
-            # CORRECCIÓN: Se eliminan widgets para campos que no existen
-            # ('empresa', 'email', 'direccion')
+            'email': forms.EmailInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'correo@ejemplo.com'
+            }),
+            'direccion': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Dirección completa'
+            }),
         }
         
         labels = {
-            # CORRECCIÓN: Se ajustan las etiquetas a los campos reales
-            'nombre': 'Nombre del Proveedor',
-            'contacto': 'Persona de Contacto',
+            'nombre': 'Nombre del Contacto',
+            'empresa': 'Empresa',
             'telefono': 'Teléfono',
+            'email': 'Correo Electrónico',
+            'direccion': 'Dirección',
         }
 
 
@@ -161,34 +165,53 @@ class ClienteForm(forms.ModelForm):
             'telefono': 'Teléfono',
             'direccion': 'Dirección',
         }
-    
 
-# Formulario de Venta (Simplificado)
+
+# ============ FORMULARIO PARA VENTAS ============
+# (CORREGIDO Y COMPLETADO)
 class VentaForm(forms.ModelForm):
-    # Campos adicionales para el formulario
-    producto = forms.ModelChoiceField(
-        queryset=Producto.objects.filter(activo=True),
-        widget=forms.Select(attrs={'class': 'form-control'}),
-        label='Producto'
-    )
-    cantidad = forms.IntegerField(
-        min_value=1,
-        max_value=1000,
-        widget=forms.NumberInput(attrs={'class': 'form-control', 'min': '1', 'max': '1000'}),
-        label='Cantidad'
-    )
-
+    """Formulario para registrar ventas"""
+    
+    # Esta es la parte que faltaba
     class Meta:
-        model = Venta  # Esto ahora funciona gracias a la importación corregida
-        fields = ['cliente'] # Define los campos esenciales para registrar una venta.
-
-# Formulario para Detalle de Venta
-class VentaDetalleForm(forms.ModelForm):
-    class Meta:
-        model = VentaDetalle
-        fields = ['producto', 'cantidad', 'precio_unitario']
+        model = Venta
+        fields = ['cliente', 'producto', 'cantidad']
+        
         widgets = {
-            'producto': forms.Select(attrs={'class': 'form-control'}),
-            'cantidad': forms.NumberInput(attrs={'class': 'form-control', 'min': '1'}),
-            'precio_unitario': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': '0'}),
+            'cliente': forms.Select(attrs={
+                'class': 'form-control'
+            }),
+            'producto': forms.Select(attrs={
+                'class': 'form-control',
+                'id': 'id_producto'
+            }),
+            'cantidad': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': '1',
+                'value': '1'
+            }),
         }
+        
+        labels = {
+            'cliente': 'Cliente',
+            'producto': 'Producto',
+            'cantidad': 'Cantidad',
+        }
+
+    # Esta es la parte que ya tenías (la validación de stock)
+    def clean(self):
+        cleaned_data = super().clean()
+        
+        cantidad = cleaned_data.get('cantidad')
+        producto = cleaned_data.get('producto')
+        
+        if cantidad is not None and producto is not None:
+            if cantidad <= 0:
+                raise forms.ValidationError("La cantidad debe ser al menos 1.")
+            
+            if cantidad > producto.stock:
+                raise forms.ValidationError(
+                    f"No hay suficiente stock. Solo quedan {producto.stock} unidades de {producto.nombre}."
+                )
+        
+        return cleaned_data
